@@ -73,11 +73,25 @@ void gpio_write(unsigned pin, unsigned v) {
 // set <pin> to input.
 void gpio_set_input(unsigned pin) {
     // implement.
+    const unsigned int n = pin/10;
+    unsigned GPFSELn =  GPIO_BASE + (n * 4);
+    unsigned int bit_mask = GET32(GPFSELn);
+
+    // Clearning old values for a particular pin and setting that pin to input by assigning 000
+    bit_mask = bit_mask & ~(1<< (((pin - (n*10)) * 3)));
+    bit_mask = bit_mask & ~(1<< (((pin - (n*10)) * 3) + 1));
+    bit_mask = bit_mask & ~(1<< (((pin - (n*10)) * 3) + 2));
+
+    PUT32(GPFSELn, bit_mask);
 }
 
 // return the value of <pin>
 int gpio_read(unsigned pin) {
     unsigned v = 0;
+    unsigned int bit_mask = 0;
+    bit_mask = 1 << pin;
+    v = GET32(gpio_lev0);
+    v = v & bit_mask;
 
     // implement.
     return v;
